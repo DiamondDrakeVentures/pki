@@ -12,9 +12,9 @@ if [[ -z "$HC_KEY" ]]; then
 fi
 
 if [[ $STATUS -eq 0 ]]; then
-    curl -fsS -m 10 --retry 5 -o /dev/null https://hc-ping.com/$HC_KEY/$(hostname)_ssh_renew
+    curl -fsS -m 10 --retry 5 -o /dev/null https://hc-ping.com/$HC_KEY/$(hostname)_ssh_renew?create=1
 else
-    curl -fsS -m 10 --retry 5 -o /dev/null https://hc-ping.com/$HC_KEY/$(hostname)_ssh_renew/fail
+    curl -fsS -m 10 --retry 5 -o /dev/null https://hc-ping.com/$HC_KEY/$(hostname)_ssh_renew/fail?create=1
 fi
 
 exit $STATUS
