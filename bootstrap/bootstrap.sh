@@ -3,6 +3,7 @@
 CA_URL=https://martin.ghinfra.co
 CA_FINGERPRINT=50bf30426b244a26c30e0a314ea9056ff8c19af501e6201293c1ed20f3cd3c1f
 HC_KEY=
+ACME_STANDALONE=0
 
 while (( "$#" )); do
     case "$1" in
@@ -36,6 +37,11 @@ while (( "$#" )); do
             fi
             ;;
 
+        --standalone)
+            ACME_STANDALONE=1
+            shift 1
+            ;;
+
         *)
             echo "Unsupported argument $1" >&2
             exit 1
@@ -46,15 +52,24 @@ done
 # Bootstrap CA
 echo Bootstrapping CA
 step ca bootstrap --ca-url $CA_URL \
-                  --fingerprint $CA_FINGERPRINT
+                  --fingerprint $CA_FINGERPRINT \
+                  --install
 step ssh config --roots > $(step path)/certs/ssh_user_ca_key.pub
 
 # Generate machine key
 # Use a longer (30-day) ACME certificate so that the SSH host cert have longer validity
 echo Authenticating with CA
-step ca certificate --provisioner "acme" --webroot "/var/www/acme-challenge" \
-                    --not-after 720h \
-                    $(hostname --fqdn) $(hostname).crt $(hostname).key
+if [[ $ACME_STANDALONE -eq 0 ]]; then
+echo Authenticating in webroot mode
+    step ca certificate --provisioner "acme" --webroot "/var/www/acme-challenge" \
+                        --not-after 720h \
+                        $(hostname --fqdn) $(hostname).crt $(hostname).key
+else
+echo Authenticating in standalone mode
+    step ca certificate --provisioner "acme" --standalone \
+                        --not-after 720h \
+                        $(hostname --fqdn) $(hostname).crt $(hostname).key
+fi
 
 echo Requesting SSH host certificate
 step ssh certificate --host --sign \
