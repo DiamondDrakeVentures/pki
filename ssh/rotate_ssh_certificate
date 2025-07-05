@@ -1,0 +1,20 @@
+#!/bin/bash
+
+HC_KEY=
+
+export STEPPATH=/root/.step
+
+cd /etc/ssh && step ssh renew ssh_host_ecdsa_key-cert.pub ssh_host_ecdsa_key --force 2> /dev/null
+STATUS=$?
+
+if [[ -z "$HC_KEY" ]]; then
+    exit $STATUS
+fi
+
+if [[ $STATUS -eq 0 ]]; then
+    curl -fsS -m 10 --retry 5 -o /dev/null https://hc-ping.com/$HC_KEY/$(hostname)_ssh_renew
+else
+    curl -fsS -m 10 --retry 5 -o /dev/null https://hc-ping.com/$HC_KEY/$(hostname)_ssh_renew/fail
+fi
+
+exit $STATUS
