@@ -59,3 +59,8 @@ fi
 if [[ $UPDATE_RENEWER -eq 1 ]]; then
     update_renewer
 fi
+
+if [[ $UPDATE_SERVER -eq 0 ]] && [[ $UPDATE_RENEWER -eq 0 ]]; then
+    update_server
+    update_renewer
+fi
