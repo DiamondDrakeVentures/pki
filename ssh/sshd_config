@@ -1,4 +1,4 @@
-# SSHD_CONFIG v2024.08.03
+# SSHD_CONFIG v2025.07.14
 
 HostKey /etc/ssh/ssh_host_ecdsa_key
 HostCertificate /etc/ssh/ssh_host_ecdsa_key-cert.pub
@@ -6,3 +6,4 @@ TrustedUserCAKeys /root/.step/certs/ssh_user_ca_key.pub
 
 PasswordAuthentication no
 PermitRootLogin no
+UsePAM yes
