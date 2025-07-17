@@ -1,10 +1,5 @@
 #!/bin/bash
 
-CA_URL=https://martin.ghinfra.co
-CA_FINGERPRINT=50bf30426b244a26c30e0a314ea9056ff8c19af501e6201293c1ed20f3cd3c1f
-HC_KEY=
-ACME_STANDALONE=0
-
 while (( "$#" )); do
     case "$1" in
         --ca-url)
@@ -49,6 +44,18 @@ while (( "$#" )); do
     esac
 done
 
+if [[ -z $CA_URL ]]; then
+    CA_URL=https://martin.ghinfra.co
+fi
+
+if [[ -z $CA_FINGERPRINT ]]; then
+    CA_FINGERPRINT=50bf30426b244a26c30e0a314ea9056ff8c19af501e6201293c1ed20f3cd3c1f
+fi
+
+if [[ -z $ACME_STANDALONE ]]; then
+    ACME_STANDALONE=0
+fi
+
 # Bootstrap CA
 echo Bootstrapping CA
 step ca bootstrap --ca-url $CA_URL \
@@ -60,12 +67,12 @@ step ssh config --roots > $(step path)/certs/ssh_user_ca_key.pub
 # Use a longer (30-day) ACME certificate so that the SSH host cert have longer validity
 echo Authenticating with CA
 if [[ $ACME_STANDALONE -eq 0 ]]; then
-echo Authenticating in webroot mode
+    echo Authenticating in webroot mode
     step ca certificate --provisioner "acme" --webroot "/var/www/acme-challenge" \
                         --not-after 720h \
                         $(hostname --fqdn) $(hostname).crt $(hostname).key
 else
-echo Authenticating in standalone mode
+    echo Authenticating in standalone mode
     step ca certificate --provisioner "acme" --standalone \
                         --not-after 720h \
                         $(hostname --fqdn) $(hostname).crt $(hostname).key
